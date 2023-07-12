@@ -6,12 +6,12 @@ import sys
 
 # Import Classes
 from .utilities import *
+from .QtUtilities import *
 
 # Importing Qt widgets
 from PySide2.QtWidgets import *
 from PySide2.QtGui import *
 from PySide2.QtCore import *
-
 
 # Matplotlib
 from .plotter import *
@@ -19,12 +19,18 @@ from .plotter import *
 # Importing Logging
 from .log import appLogger
 
+# Global Variables
+STEP = 0.001
+
 # Window class
 class MainWindow(QMainWindow):
     """Main Window"""
     def __init__(self, *args, **kwargs):
         """Initializer."""
         super(MainWindow, self).__init__(*args, **kwargs)
+        QFontDatabase.addApplicationFont("./src/assets/fonts/AccanthisADFStd-Regular.otf")
+        QFontDatabase.addApplicationFont("./src/assets/fonts/OpenSans.ttf")
+        QFontDatabase.addApplicationFont("./src/assets/fonts/Enagol-Math-Medium.ttf")
 
         ### Variables
         self.equations = list()
@@ -118,27 +124,42 @@ class MainWindow(QMainWindow):
         # Outer Layout
         outerLayout = QHBoxLayout()
         
-        graph = MplCanvas(None,"Plotter")
+        self.graph = MplCanvas(None, "Plotter")
         
         # Left layout
         leftLayout = QVBoxLayout()
         leftWidget = QWidget()
         leftWidget.setLayout(leftLayout)
-        mainInput = self.addInput("Add Equation...")
-        addField = QPushButton("Add Equation")
-        addField.setStyleSheet(f"""border:1px solid {COLOR1}; 
+        
+        equationsLayout = QVBoxLayout()
+        equationsWidget = QWidget()
+        
+        # equationTitle = QLabel("f(x)")
+        # equationTitle.setStyleSheet(f"""color:{COLOR2}; font-family: "arial"; font-size: 40px""")
+        # equationTitle.setAlignment(Qt.AlignCenter)
+        
+        
+        equationsWidget.setLayout(equationsLayout)
+        leftLayout.addWidget(equationsWidget)
+        leftLayout.addWidget(QHLine())    
+
+        self.addInput(leftLayout)
+        self.addFieldBtn = QPushButton("Add Function")
+        self.addFieldBtn.setStyleSheet(f"""border:1px solid {COLOR1}; 
                                     height:18px; 
                                     padding:3px; 
                                     border-radius:2px; 
                                     font-size:16px;""")
-        
-        leftLayout.addLayout(mainInput)
-        leftLayout.addWidget(addField)
+        self.addFieldBtn.clicked.connect(lambda: self.addFunctionToGraph(equationsLayout))
+        leftLayout.addWidget(self.addFieldBtn)
         leftLayout.addStretch()
         
         mainSplitter = QSplitter(Qt.Horizontal)
         mainSplitter.addWidget(leftWidget)
-        mainSplitter.addWidget(graph)
+        mainSplitter.addWidget(self.graph)
+        mainSplitter.setStretchFactor(0, 2)
+        mainSplitter.setStretchFactor(1, 4)
+        # mainSplitter.setSizes([100,600])
         
         outerLayout.addWidget(mainSplitter)
                 
@@ -163,22 +184,117 @@ class MainWindow(QMainWindow):
         self._connectActions()
 
     # Add input
-    def addInput(self, placeholderText):
+    def addInput(self, parent):
         inputWidget = QHBoxLayout()
         
-        inputField = QLineEdit()
-        inputField.setPlaceholderText(placeholderText)
-        inputField.setStyleSheet(f"""border:1px solid {COLOR1}; 
+        self.statusImg = QLabel()
+        self.statusImg.setPixmap(QPixmap("./src/assets/icons/wrong.png").scaled(30,30))
+
+        fxLabel =QLabel("f(x) = ")
+        fxLabel.setFont(QFont("arial",15))
+        
+        self.inputField = QLineEdit()
+        self.inputField.setPlaceholderText("Add Function...")
+        self.inputField.setStyleSheet(f"""border:1px solid {COLOR1}; 
                                     height:18px; 
                                     padding:3px; 
                                     border-radius:2px; 
                                     font-size:16px;""")
-        
-       
-        inputWidget.addWidget(inputField)
 
-        return inputWidget
-                  
+        self.minField = QLineEdit()
+        self.minField.setPlaceholderText("min")
+        self.minField.setStyleSheet(f"""border:1px solid {COLOR1}; 
+                                    height:18px; 
+                                    padding:3px; 
+                                    border-radius:2px; 
+                                    font-size:16px;""")
+        self.maxField = QLineEdit()
+        self.maxField.setPlaceholderText("max")
+        self.maxField.setStyleSheet(f"""border:1px solid {COLOR1}; 
+                                    height:18px; 
+                                    padding:3px; 
+                                    border-radius:2px; 
+                                    font-size:16px;""")
+
+        
+        self.inputField.textChanged.connect(lambda: self.validateInput(self.inputField.text(), self.minField.text(), self.maxField.text()))
+        self.minField.textChanged.connect(lambda: self.validateInput(self.inputField.text(), self.minField.text(), self.maxField.text()))
+        self.maxField.textChanged.connect(lambda: self.validateInput(self.inputField.text(), self.minField.text(), self.maxField.text()))
+
+        # Connect to draw function on text change in input field or min/max fields
+        self.inputField.textChanged.connect(lambda: self.drawFunction(self.inputField.text(), self.minField.text(), self.maxField.text()))
+        self.minField.textChanged.connect(lambda: self.drawFunction(self.inputField.text(), self.minField.text(), self.maxField.text()))
+        self.maxField.textChanged.connect(lambda: self.drawFunction(self.inputField.text(), self.minField.text(), self.maxField.text()))
+        
+        inputWidget.addWidget(self.statusImg,1)
+        inputWidget.addWidget(QVLine())
+        inputWidget.addWidget(fxLabel,1)
+        inputWidget.addWidget(self.inputField,5)
+        inputWidget.addWidget(self.minField,1)
+        inputWidget.addWidget(self.maxField,1)
+
+        parent.addLayout(inputWidget)
+
+    def addFunctionToGraph(self, parent):
+        if self.validateInput(self.inputField.text(), self.minField.text(), self.maxField.text()) == False:
+            return
+        
+        inputLabel = QLabel(f"f(x) = {self.inputField.text()}  \t D = [ {self.minField.text()},{self.maxField.text()} ]")
+        inputLabel.setStyleSheet(f"""color:{COLOR2}; font-family: "arial"; font-size: 20px""")
+        parent.addWidget(inputLabel)
+        x,y = functionTranslator(self.inputField.text(), float(self.minField.text()), float(self.maxField.text()), STEP)
+        self.graph.plotAllData(x,y)
+        self.resetInputs()
+        
+    def validateInput(self, text, min, max):
+        if text == "" or min == "" or max == "":
+            self.statusbar.showMessage("Please fill all the fields")
+            self.disableAddFieldBtn()
+            return False
+
+        try:
+            functionTranslator(text, float(min), float(max), STEP)
+        except Exception as e:
+            self.statusbar.showMessage(str(e))
+            self.disableAddFieldBtn()
+            return False
+        
+        try:
+            float(min)
+            float(max)
+        except:
+            self.statusbar.showMessage("Please enter a valid number")
+            self.disableAddFieldBtn()
+            return False
+        
+        if float(min) >= float(max):
+            self.statusbar.showMessage("Please enter a valid range")
+            self.disableAddFieldBtn()
+            return False
+        
+        self.addFieldBtn.setEnabled(True)
+        self.statusbar.showMessage("Ready")
+        self.statusImg.setPixmap(QPixmap("./src/assets/icons/ok.png").scaled(30,30))
+            
+        return True
+
+    def disableAddFieldBtn(self):
+        self.graph.plotAllData2()
+        self.addFieldBtn.setEnabled(False)
+        self.statusImg.setPixmap(QPixmap("./src/assets/icons/wrong.png").scaled(30,30))
+    
+    def drawFunction(self, text, xMin, xMax):
+        if self.validateInput(text, xMin, xMax) == False:
+            return
+        
+        x, y = functionTranslator(text, float(xMin), float(xMax), STEP)
+        self.graph.plotOneData(x, y)
+
+    def resetInputs(self):
+        self.inputField.setText("")
+        self.minField.setText("")
+        self.maxField.setText("")
+                
     # Exit the application
     def exit(self):
         exitDialog = QMessageBox.critical(self,

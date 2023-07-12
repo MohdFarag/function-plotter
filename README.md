@@ -61,6 +61,7 @@ $ python3 __init__.py
 - [Numpy](https://numpy.org/)
 - [PySide2](https://pypi.org/project/PySide2/)
 - [Python](https://www.python.org/)
+- [Convert matplotlib Figure to QPixmap](https://stackoverflow.com/questions/32035251/displaying-latex-in-pyqt-pyside-qtablewidget)
 
 [Back To The Top](#function-plotter)
 
