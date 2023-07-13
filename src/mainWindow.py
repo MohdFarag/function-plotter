@@ -32,9 +32,6 @@ class MainWindow(QMainWindow):
         QFontDatabase.addApplicationFont("./src/assets/fonts/OpenSans.ttf")
         QFontDatabase.addApplicationFont("./src/assets/fonts/Enagol-Math-Medium.ttf")
 
-        ### Variables
-        self.equations = list()
-
         ### Setting title
         self.setWindowTitle("Function Plotter")
 
@@ -188,10 +185,10 @@ class MainWindow(QMainWindow):
         inputWidget = QHBoxLayout()
         
         self.statusImg = QLabel()
-        self.statusImg.setPixmap(QPixmap("./src/assets/icons/wrong.png").scaled(30,30))
+        self.statusImg.setPixmap(QPixmap("./src/assets/icons/wrong.png").scaled(35,35))
 
         fxLabel =QLabel("f(x) = ")
-        fxLabel.setFont(QFont("arial",15))
+        fxLabel.setFont(QFont("arial",16))
         
         self.inputField = QLineEdit()
         self.inputField.setPlaceholderText("Add Function...")
@@ -229,34 +226,71 @@ class MainWindow(QMainWindow):
         inputWidget.addWidget(self.statusImg,1)
         inputWidget.addWidget(QVLine())
         inputWidget.addWidget(fxLabel,1)
-        inputWidget.addWidget(self.inputField,5)
+        inputWidget.addWidget(self.inputField,6)
         inputWidget.addWidget(self.minField,1)
         inputWidget.addWidget(self.maxField,1)
 
         parent.addLayout(inputWidget)
 
-    def addFunctionToGraph(self, parent):
+    def addFunctionToGraph(self, parent:QVBoxLayout):
         if self.validateInput(self.inputField.text(), self.minField.text(), self.maxField.text()) == False:
             return
-        
-        inputLabel = QLabel(f"f(x) = {self.inputField.text()}  \t D = [ {self.minField.text()},{self.maxField.text()} ]")
+
+        functionLabelWidget = QHBoxLayout()
+        children = []
+
+        id = len(self.graph.X)
+        inputLabel = QLabel(f"f(x) = {self.inputField.text()} | [{self.minField.text()} , {self.maxField.text()}]")
         inputLabel.setStyleSheet(f"""color:{COLOR2}; font-family: "arial"; font-size: 20px""")
-        parent.addWidget(inputLabel)
+        # inputLabel.setAlignment(Qt.AlignCenter)
+        
+        inputLabel.setWordWrap(True)       
+        functionLabel = self.inputField.text()
+        min = self.minField.text()
+        max = self.maxField.text()
+               
+        inputLabel.mousePressEvent = lambda event: self.drawFunction(functionLabel, float(min), float(max), errors=False)
+
+        deleteIcon = QLabel()
+        deleteIcon.setPixmap(QPixmap("./src/assets/icons/delete.png").scaled(20,20))
+        functionLabelWidget.addWidget(inputLabel,8)
+        children.append(inputLabel)
+        functionLabelWidget.addWidget(deleteIcon,1, Qt.AlignRight)
+        children.append(deleteIcon)
+        deleteIcon.mousePressEvent = lambda event: self.removeFunction(widget=functionLabelWidget, items=children, id=id)
+        
+        parent.addLayout(functionLabelWidget)
+                
         x,y = functionTranslator(self.inputField.text(), float(self.minField.text()), float(self.maxField.text()), STEP)
         self.graph.plotAllData(x,y)
         self.resetInputs()
-        
-    def validateInput(self, text, min, max):
+    
+    def removeFunction(self,widget:QLayout, items:list(), id:int):
+        for item in items:
+            widget.removeWidget(item)
+            item.deleteLater()
+            item = None
+        widget.deleteLater()
+            
+        self.graph.X[id] = []
+        self.graph.Y[id] = []
+        self.graph.plotAllData2()
+    
+    def validateInput(self, text, min, max, errors=True):
+        if errors:
+            errorsFunction = self.disableAddFieldBtn
+        else:
+            errorsFunction = lambda: None
         if text == "" or min == "" or max == "":
             self.statusbar.showMessage("Please fill all the fields")
-            self.disableAddFieldBtn()
+            errorsFunction()
             return False
 
         try:
             functionTranslator(text, float(min), float(max), STEP)
         except Exception as e:
             self.statusbar.showMessage(str(e))
-            self.disableAddFieldBtn()
+            errorsFunction()
             return False
         
         try:
@@ -264,27 +298,28 @@ class MainWindow(QMainWindow):
             float(max)
         except:
             self.statusbar.showMessage("Please enter a valid number")
-            self.disableAddFieldBtn()
+            errorsFunction()
             return False
         
         if float(min) >= float(max):
             self.statusbar.showMessage("Please enter a valid range")
-            self.disableAddFieldBtn()
+            errorsFunction()
             return False
         
-        self.addFieldBtn.setEnabled(True)
-        self.statusbar.showMessage("Ready")
-        self.statusImg.setPixmap(QPixmap("./src/assets/icons/ok.png").scaled(30,30))
+        if errors:
+            self.addFieldBtn.setEnabled(True)
+            self.statusbar.showMessage("Ready")
+            self.statusImg.setPixmap(QPixmap("./src/assets/icons/ok.png").scaled(35,35))
             
         return True
 
     def disableAddFieldBtn(self):
         self.graph.plotAllData2()
         self.addFieldBtn.setEnabled(False)
-        self.statusImg.setPixmap(QPixmap("./src/assets/icons/wrong.png").scaled(30,30))
+        self.statusImg.setPixmap(QPixmap("./src/assets/icons/wrong.png").scaled(35,35))
     
-    def drawFunction(self, text, xMin, xMax):
-        if self.validateInput(text, xMin, xMax) == False:
+    def drawFunction(self, text, xMin, xMax, errors=True):
+        if self.validateInput(text, xMin, xMax, errors) == False:
             return
         
         x, y = functionTranslator(text, float(xMin), float(xMax), STEP)
