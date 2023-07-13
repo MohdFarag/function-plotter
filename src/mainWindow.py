@@ -36,7 +36,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Function Plotter")
 
         ### Setting Icon
-        self.setWindowIcon(QIcon(":icon"))
+        self.setWindowIcon(QIcon("./src/assets/icons/function.png"))
         self.setMinimumSize(1000,600)
 
         ### UI contents
@@ -57,13 +57,22 @@ class MainWindow(QMainWindow):
     def _createActions(self):
         # Actions
         self.fileActions()
+        
         self.helpActions()
         self.setShortcuts()
 
     # File Actions
     def fileActions(self):
+        # Open Action
+        self.openAction = QAction(QIcon(":Open"), "&Open", self)
+        # Set Open function to the triggered signal
+        self.openAction.triggered.connect(self.openFunction)
+        self.openAction.setStatusTip('Open file')
+        
         # Exit Action
         self.exitAction = QAction(QIcon(":exit"), "&Exit", self)
+        # Set exit function to the triggered signal
+        self.exitAction.triggered.connect(self.exit)
         self.exitAction.setStatusTip('Exit application')
 
     # Help Actions
@@ -94,7 +103,23 @@ class MainWindow(QMainWindow):
     def _createMenuBar(self):
         # Menu bar
         menuBar = self.menuBar()
+        
+        # Creating menus using a QMenu object
+        fileMenu = QMenu("&File", self)
+        fileMenu.addAction(self.openAction)
+        fileMenu.addAction(self.exitAction)
 
+        """Help"""
+        helpMenu = QMenu("&Help", self)
+        helpMenu.addAction(self.helpContentAction)
+        helpMenu.addSeparator()
+        helpMenu.addAction(self.checkUpdatesAction)
+        helpMenu.addSeparator()
+        helpMenu.addAction(self.aboutAction)
+
+        menuBar.addMenu(fileMenu)
+        menuBar.addMenu(helpMenu)
+        
     # Context Menu Event
     def contextMenuEvent(self, event):
         # Creating a menu object with the central widget as parent
@@ -133,9 +158,8 @@ class MainWindow(QMainWindow):
         
         # equationTitle = QLabel("f(x)")
         # equationTitle.setStyleSheet(f"""color:{COLOR2}; font-family: "arial"; font-size: 40px""")
-        # equationTitle.setAlignment(Qt.AlignCenter)
-        
-        
+        # equationTitle.setAlignment(Qt.AlignCenter)        
+
         equationsWidget.setLayout(equationsLayout)
         leftLayout.addWidget(equationsWidget)
         leftLayout.addWidget(QHLine())    
@@ -147,6 +171,8 @@ class MainWindow(QMainWindow):
                                     padding:3px; 
                                     border-radius:2px; 
                                     font-size:16px;""")
+        self.addFieldBtn.setEnabled(False)
+
         self.addFieldBtn.clicked.connect(lambda: self.addFunctionToGraph(equationsLayout))
         leftLayout.addWidget(self.addFieldBtn)
         leftLayout.addStretch()
@@ -265,6 +291,9 @@ class MainWindow(QMainWindow):
         self.graph.plotAllData(x,y)
         self.resetInputs()
     
+    def openFunction(self):
+        pass
+    
     def removeFunction(self,widget:QLayout, items:list(), id:int):
         for item in items:
             widget.removeWidget(item)
@@ -281,6 +310,7 @@ class MainWindow(QMainWindow):
             errorsFunction = self.disableAddFieldBtn
         else:
             errorsFunction = lambda: None
+
         if text == "" or min == "" or max == "":
             self.statusbar.showMessage("Please fill all the fields")
             errorsFunction()
@@ -338,6 +368,6 @@ class MainWindow(QMainWindow):
         buttons=QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
         defaultButton=QMessageBox.StandardButton.Yes)
 
-        if exitDialog == QMessageBox.StandardButton.Yes.value:
+        if exitDialog == QMessageBox.StandardButton.Yes:
             # Exit the application
             sys.exit()

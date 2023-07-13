@@ -41,6 +41,8 @@ def eval_expression(input_string,x):
 
 def functionTranslator(equation: str, min:float, max:float, step:float) -> np.ndarray:   
     # The following operators must be supported: + - / * ^.
+    equation = equation.replace("^","**") 
+
     try:
          eval_expression(f"{equation}",0)
     except ZeroDivisionError:
@@ -48,7 +50,6 @@ def functionTranslator(equation: str, min:float, max:float, step:float) -> np.nd
     except Exception as e:
         raise Exception("Invalid Equation")
             
-    equation = equation.replace("^","**") 
     x = np.arange(min,max,step)
     y = []
     try:
