@@ -2,6 +2,8 @@
 
 import numpy as np
 from math import *
+import warnings
+import random
 
 COLOR1 = "#222831"
 COLOR2 = "#393E46"
@@ -16,19 +18,19 @@ def eval_expression(input_string,x):
      # Step 1
      allowed_names = {
         "x": x,
-        "sin": sin,
-        "cos": cos,
-        "tan":tan,
-        "sinh": sinh,
-        "cosh": cosh,
-        "tanh": tanh,
+        "sin": np.sin,
+        "cos": np.cos,
+        "tan": np.tan,
+        "sinh": np.sinh,
+        "cosh": np.cosh,
+        "tanh": np.tanh,
         "e": e,
-        "arcsin":asin,
-        "arccos":asin,
-        "arctan":atan,
-        "arcsinh":asinh,
-        "arccosh":asinh,
-        "arctanh":atanh,
+        "arcsin": np.arcsin,
+        "arccos": np.arccos,
+        "arctan": np.arctan,
+        "arcsinh": np.arcsinh,
+        "arccosh": np.arcsinh,
+        "arctanh": np.arctanh,
     }
      # Step 2
      code = compile(input_string, "<string>", "eval")
@@ -44,24 +46,13 @@ def functionTranslator(equation: str, min:float, max:float, step:float) -> np.nd
     equation = equation.replace("^","**") 
 
     try:
-         eval_expression(f"{equation}",0)
-    except ZeroDivisionError:
-        pass
+        eval_expression(f"{equation}",random.random()*100)
     except Exception as e:
         raise Exception("Invalid Equation")
             
-    x = np.arange(min,max,step)
-    y = []
-    try:
-        y = eval_expression(f"{equation}*x**0",x)
-    except Exception as e:
-        x_array = x
-        for x in x_array:
-            try:
-                result = eval_expression(equation,x)
-                y.append(result)
-            except ZeroDivisionError:
-                y.append(0)
-        x = x_array
-        
+    x = np.linspace(min,max,int(1/step)+1)
+    y = np.array([])
+    with np.errstate(divide='ignore', invalid='ignore'):
+        y = eval_expression(f"{equation}*x**0", x)
+
     return x, y

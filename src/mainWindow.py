@@ -305,6 +305,7 @@ class MainWindow(QMainWindow):
         self.graph.Y[id] = []
         self.graph.plotAllData2()
     
+    # Validate Equations on Input Field
     def validateInput(self, text, min, max, errors=True):
         if errors:
             errorsFunction = self.disableAddFieldBtn
@@ -318,6 +319,11 @@ class MainWindow(QMainWindow):
 
         try:
             functionTranslator(text, float(min), float(max), STEP)
+        except RuntimeWarning as w:
+            self.statusBar.showMessage(str(w))
+            self.addFieldBtn.setEnabled(True)
+            self.statusImg.setPixmap(QPixmap("./src/assets/icons/warn.png").scaled(35,35))
+            return True
         except Exception as e:
             self.statusbar.showMessage(str(e))
             errorsFunction()
