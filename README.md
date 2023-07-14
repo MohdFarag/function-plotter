@@ -61,7 +61,9 @@ $ python3 __init__.py
 - [Numpy](https://numpy.org/)
 - [PySide2](https://pypi.org/project/PySide2/)
 - [Python](https://www.python.org/)
-- [Convert matplotlib Figure to QPixmap](https://stackoverflow.com/questions/32035251/displaying-latex-in-pyqt-pyside-qtablewidget)
+- [Convert matplotlib Figure to QPixmap @Jean-Sébastien](https://stackoverflow.com/questions/32035251/displaying-latex-in-pyqt-pyside-qtablewidget)
+- [How to render Latex markup using Python? @Wojciech Moszczyński](https://stackoverflow.com/questions/4028267/how-to-render-latex-markup-using-python)
+- [Converting a Python numeric expression to LaTeX @Geoff Reedy](https://stackoverflow.com/questions/1841084/https://stackoverflow.com/questions/3867028/converting-a-python-numeric-expression-to-latex)
 
 [Back To The Top](#function-plotter)
 

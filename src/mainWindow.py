@@ -101,6 +101,8 @@ class MainWindow(QMainWindow):
 
     # Menu
     def _createMenuBar(self):
+        toolbar = QToolBar("Toolbar")
+        self.addToolBar(toolbar)
         # Menu bar
         menuBar = self.menuBar()
         
@@ -126,15 +128,14 @@ class MainWindow(QMainWindow):
         menu = QMenu(self)
         # Populating the menu with actions
         menu.addAction(self.openAction)
-        menu.addAction(self.saveAction)
-        self.addSeparator(menu)
-        menu.addAction(self.clearAction)
         self.addSeparator(menu)
         menu.addAction(self.helpContentAction)
         menu.addAction(self.checkUpdatesAction)
         menu.addAction(self.aboutAction)
+        self.addSeparator(menu)
+        menu.addAction(self.exitAction)
         # Launching the menu
-        menu.exec(event.globalPos())
+        menu.exec_(event.globalPos())
     
     ##########################################
 
@@ -165,13 +166,17 @@ class MainWindow(QMainWindow):
         leftLayout.addWidget(QHLine())    
 
         self.addInput(leftLayout)
-        self.addFieldBtn = QPushButton("Add Function")
-        self.addFieldBtn.setStyleSheet(f"""border:1px solid {COLOR1}; 
-                                    height:18px; 
-                                    padding:3px; 
-                                    border-radius:2px; 
-                                    font-size:16px;""")
+        self.addFieldBtn = QPushButton()
+        self.addFieldBtn.setIcon(QIcon("./src/assets/icons/add.png"))
+
+        self.addFieldBtn.setStyleSheet(f"""font-size:24px;
+                                   border-radius: 6px;
+                                   padding: 5px 15px; 
+                                   background: #272C3D;
+                                   color: {COLOR5};""")
+
         self.addFieldBtn.setEnabled(False)
+        self.addFieldBtn.setCursor(QCursor(Qt.PointingHandCursor))
 
         self.addFieldBtn.clicked.connect(lambda: self.addFunctionToGraph(equationsLayout))
         leftLayout.addWidget(self.addFieldBtn)
@@ -181,9 +186,7 @@ class MainWindow(QMainWindow):
         mainSplitter.addWidget(leftWidget)
         mainSplitter.addWidget(self.graph)
         mainSplitter.setStretchFactor(0, 2)
-        mainSplitter.setStretchFactor(1, 4)
-        # mainSplitter.setSizes([100,600])
-        
+        mainSplitter.setStretchFactor(1, 4)     
         outerLayout.addWidget(mainSplitter)
                 
         ### GUI ###
@@ -211,7 +214,7 @@ class MainWindow(QMainWindow):
         inputWidget = QHBoxLayout()
         
         self.statusImg = QLabel()
-        self.statusImg.setPixmap(QPixmap("./src/assets/icons/wrong.png").scaled(35,35))
+        self.statusImg.setPixmap(QPixmap("./src/assets/icons/warn.png").scaled(35,35))
 
         fxLabel =QLabel("f(x) = ")
         fxLabel.setFont(QFont("arial",16))
@@ -220,24 +223,24 @@ class MainWindow(QMainWindow):
         self.inputField.setPlaceholderText("Add Function...")
         self.inputField.setStyleSheet(f"""border:1px solid {COLOR1}; 
                                     height:18px; 
-                                    padding:3px; 
-                                    border-radius:2px; 
-                                    font-size:16px;""")
+                                    padding:4px; 
+                                    border-radius:1px; 
+                                    font-size:14px;""")
 
         self.minField = QLineEdit()
         self.minField.setPlaceholderText("min")
         self.minField.setStyleSheet(f"""border:1px solid {COLOR1}; 
                                     height:18px; 
-                                    padding:3px; 
-                                    border-radius:2px; 
-                                    font-size:16px;""")
+                                    padding:4px; 
+                                    border-radius:1px; 
+                                    font-size:14px;""")
         self.maxField = QLineEdit()
         self.maxField.setPlaceholderText("max")
         self.maxField.setStyleSheet(f"""border:1px solid {COLOR1}; 
                                     height:18px; 
-                                    padding:3px; 
-                                    border-radius:2px; 
-                                    font-size:16px;""")
+                                    padding:4px; 
+                                    border-radius:1px; 
+                                    font-size:14px;""")
 
         
         self.inputField.textChanged.connect(lambda: self.validateInput(self.inputField.text(), self.minField.text(), self.maxField.text()))
@@ -250,14 +253,15 @@ class MainWindow(QMainWindow):
         self.maxField.textChanged.connect(lambda: self.drawFunction(self.inputField.text(), self.minField.text(), self.maxField.text()))
         
         inputWidget.addWidget(self.statusImg,1)
-        inputWidget.addWidget(QVLine())
+        inputWidget.addWidget(QVLine(),1)
         inputWidget.addWidget(fxLabel,1)
-        inputWidget.addWidget(self.inputField,6)
-        inputWidget.addWidget(self.minField,1)
-        inputWidget.addWidget(self.maxField,1)
+        inputWidget.addWidget(self.inputField,10)
+        inputWidget.addWidget(self.minField,2)
+        inputWidget.addWidget(self.maxField,2)
 
         parent.addLayout(inputWidget)
 
+    # Add Function to Graph
     def addFunctionToGraph(self, parent:QVBoxLayout):
         if self.validateInput(self.inputField.text(), self.minField.text(), self.maxField.text()) == False:
             return
@@ -266,9 +270,13 @@ class MainWindow(QMainWindow):
         children = []
 
         id = len(self.graph.X)
-        inputLabel = QLabel(f"f(x) = {self.inputField.text()} | [{self.minField.text()} , {self.maxField.text()}]")
+        label = mathTex_to_QPixmap(self.inputField.text(),[self.minField.text() , self.maxField.text()])
+        # label = mathTex_to_QPixmap(f"f(x) = {self.inputField.text()} | [{self.minField.text()} , {self.maxField.text()}]")
+        inputLabel = QLabel()
+        inputLabel.setPixmap(label)
+        inputLabel.setCursor(QCursor(Qt.PointingHandCursor))
+
         inputLabel.setStyleSheet(f"""color:{COLOR2}; font-family: "arial"; font-size: 20px""")
-        # inputLabel.setAlignment(Qt.AlignCenter)
         
         inputLabel.setWordWrap(True)       
         functionLabel = self.inputField.text()
@@ -278,7 +286,9 @@ class MainWindow(QMainWindow):
         inputLabel.mousePressEvent = lambda event: self.drawFunction(functionLabel, float(min), float(max), errors=False)
 
         deleteIcon = QLabel()
-        deleteIcon.setPixmap(QPixmap("./src/assets/icons/delete.png").scaled(20,20))
+        deleteIcon.setPixmap(QPixmap("./src/assets/icons/delete.png").scaled(25,25))
+        deleteIcon.setCursor(QCursor(Qt.PointingHandCursor))
+
         functionLabelWidget.addWidget(inputLabel,8)
         children.append(inputLabel)
         functionLabelWidget.addWidget(deleteIcon,1, Qt.AlignRight)
@@ -288,12 +298,14 @@ class MainWindow(QMainWindow):
         parent.addLayout(functionLabelWidget)
                 
         x,y = functionTranslator(self.inputField.text(), float(self.minField.text()), float(self.maxField.text()), STEP)
-        self.graph.plotAllData(x,y)
+        self.graph.plotAllData(x,y, self.inputField.text())
         self.resetInputs()
     
+    # TODO: Browse Function 
     def openFunction(self):
         pass
     
+    # Remove Function
     def removeFunction(self,widget:QLayout, items:list(), id:int):
         for item in items:
             widget.removeWidget(item)
@@ -303,6 +315,7 @@ class MainWindow(QMainWindow):
             
         self.graph.X[id] = []
         self.graph.Y[id] = []
+        self.graph.labels[id] = []
         self.graph.plotAllData2()
     
     # Validate Equations on Input Field
@@ -314,16 +327,11 @@ class MainWindow(QMainWindow):
 
         if text == "" or min == "" or max == "":
             self.statusbar.showMessage("Please fill all the fields")
-            errorsFunction()
+            errorsFunction(warning=True)
             return False
 
         try:
             functionTranslator(text, float(min), float(max), STEP)
-        except RuntimeWarning as w:
-            self.statusBar.showMessage(str(w))
-            self.addFieldBtn.setEnabled(True)
-            self.statusImg.setPixmap(QPixmap("./src/assets/icons/warn.png").scaled(35,35))
-            return True
         except Exception as e:
             self.statusbar.showMessage(str(e))
             errorsFunction()
@@ -349,22 +357,28 @@ class MainWindow(QMainWindow):
             
         return True
 
-    def disableAddFieldBtn(self):
+    # Disable Add Field Button
+    def disableAddFieldBtn(self, warning=True):
         self.graph.plotAllData2()
         self.addFieldBtn.setEnabled(False)
-        self.statusImg.setPixmap(QPixmap("./src/assets/icons/wrong.png").scaled(35,35))
+        if warning:
+            self.statusImg.setPixmap(QPixmap("./src/assets/icons/warn.png").scaled(35,35))
+        else:
+            self.statusImg.setPixmap(QPixmap("./src/assets/icons/wrong.png").scaled(35,35))
     
+    # Draw Function
     def drawFunction(self, text, xMin, xMax, errors=True):
         if self.validateInput(text, xMin, xMax, errors) == False:
             return
         
         x, y = functionTranslator(text, float(xMin), float(xMax), STEP)
-        self.graph.plotOneData(x, y)
+        self.graph.plotOneData(x, y, text)
 
+    # Reset Inputs
     def resetInputs(self):
         self.inputField.setText("")
-        self.minField.setText("")
-        self.maxField.setText("")
+        # self.minField.setText("")
+        # self.maxField.setText("")
                 
     # Exit the application
     def exit(self):
