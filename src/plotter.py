@@ -20,9 +20,11 @@ class MplCanvas(FigureCanvasQTAgg):
     def __init__(self, parent=None, title="Plotter"):
         # Variables
         self.title = title
+        self.lines = []
         self.X = []        
         self.Y = []
         self.labels = []
+        self.colors = []
         
         self.fig = Figure(facecolor=f"{COLOR1}")
         self.axes = self.fig.add_subplot(111)
@@ -33,21 +35,27 @@ class MplCanvas(FigureCanvasQTAgg):
 
     def plotAllData2(self):
         self.clearPlot()
+        
+        i = 0
         for x, y in zip(self.X, self.Y):
-            self.axes.plot(x, y)
-            
-        # x=self.fig.legend(labels=self.labels, loc='upper right', bbox_to_anchor=(1.0, 1.0), ncol=1, fancybox=True, shadow=True)
+            self.axes.plot(x, y, color=self.colors[i], label=self.labels[i])
+            i += 1
+                        
         self.draw()
         
-    def plotAllData(self, x, y, label):
+    def plotAllData(self, x, y, label, color="red"):
         self.clearPlot()
+        
         self.X.append(x)
         self.Y.append(y)
         self.labels.append(label)
+        self.colors.append(color)
+        
+        i = 0
         for x, y in zip(self.X, self.Y):
-            self.axes.plot(x, y)
-
-        # self.fig.legend(labels=self.labels, loc='upper right', bbox_to_anchor=(1.0, 1.0), ncol=1, fancybox=True, shadow=True)
+            self.axes.plot(x, y, color=self.colors[i], label=self.labels[i])
+            i += 1
+            
         self.draw()
        
     def plotOneData(self, x, y, label):
@@ -66,8 +74,7 @@ class MplCanvas(FigureCanvasQTAgg):
         else: maxX*0.9
         
         self.axes.set_xlim([minX, maxX])
-
-        
+       
     def clearPlot(self):
         self.axes.clear()
         self.axes.set_title(self.title, fontweight ="bold", color=f"{COLOR4}")

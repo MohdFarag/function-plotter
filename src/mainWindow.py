@@ -12,6 +12,7 @@ from .QtUtilities import *
 from PySide2.QtWidgets import *
 from PySide2.QtGui import *
 from PySide2.QtCore import *
+import pyqtgraph as pg
 
 # Matplotlib
 from .plotter import *
@@ -266,40 +267,49 @@ class MainWindow(QMainWindow):
         if self.validateInput(self.inputField.text(), self.minField.text(), self.maxField.text()) == False:
             return
 
-        functionLabelWidget = QHBoxLayout()
+        self.addFunctionText(parent, self.inputField.text(), self.minField.text(), self.maxField.text(), len(self.graph.X))
+        
+        x, y = functionTranslator(self.inputField.text(), float(self.minField.text()), float(self.maxField.text()), STEP)
+        self.graph.plotAllData(x,y, self.inputField.text())
+        self.resetInputs()
+
+    # Add function text
+    def addFunctionText(self, parent:QVBoxLayout, text:str, min:str, max:str, id:int):
+
+        functionTextWidget = QHBoxLayout()
         children = []
 
-        id = len(self.graph.X)
-        label = mathTex_to_QPixmap(self.inputField.text(),[self.minField.text() , self.maxField.text()])
-        # label = mathTex_to_QPixmap(f"f(x) = {self.inputField.text()} | [{self.minField.text()} , {self.maxField.text()}]")
+        # input label
+        label = mathTex_to_QPixmap(text,[min , max])
         inputLabel = QLabel()
         inputLabel.setPixmap(label)
         inputLabel.setCursor(QCursor(Qt.PointingHandCursor))
-
         inputLabel.setStyleSheet(f"""color:{COLOR2}; font-family: "arial"; font-size: 20px""")
+        inputLabel.setWordWrap(True)
+        inputLabel.mousePressEvent = lambda event: self.drawFunction(text, float(min), float(max), errors=False)
         
-        inputLabel.setWordWrap(True)       
-        functionLabel = self.inputField.text()
-        min = self.minField.text()
-        max = self.maxField.text()
-               
-        inputLabel.mousePressEvent = lambda event: self.drawFunction(functionLabel, float(min), float(max), errors=False)
-
+        # Color of line
+        colorInput = pg.ColorButton(color='red')
+        colorInput.sigColorChanging.connect(lambda: self.changeLineColor(id, colorInput.color().name()))
+        
+        # Delete Icon        
         deleteIcon = QLabel()
         deleteIcon.setPixmap(QPixmap("./src/assets/icons/delete.png").scaled(25,25))
         deleteIcon.setCursor(QCursor(Qt.PointingHandCursor))
-
-        functionLabelWidget.addWidget(inputLabel,8)
-        children.append(inputLabel)
-        functionLabelWidget.addWidget(deleteIcon,1, Qt.AlignRight)
-        children.append(deleteIcon)
-        deleteIcon.mousePressEvent = lambda event: self.removeFunction(widget=functionLabelWidget, items=children, id=id)
+        deleteIcon.mousePressEvent = lambda event: self.removeFunction(widget=functionTextWidget, items=children, id=id)
         
-        parent.addLayout(functionLabelWidget)
-                
-        x,y = functionTranslator(self.inputField.text(), float(self.minField.text()), float(self.maxField.text()), STEP)
-        self.graph.plotAllData(x,y, self.inputField.text())
-        self.resetInputs()
+        functionTextWidget.addWidget(inputLabel, 8)
+        children.append(inputLabel)
+        functionTextWidget.addWidget(colorInput,1, Qt.AlignRight)
+        children.append(colorInput)
+        functionTextWidget.addWidget(deleteIcon,1, Qt.AlignRight)
+        children.append(deleteIcon)
+        
+        parent.addLayout(functionTextWidget)    
+    
+    def changeLineColor(self, id, color):
+        self.graph.colors[id] = color
+        self.graph.plotAllData2()
     
     # TODO: Browse Function 
     def openFunction(self):
@@ -316,6 +326,8 @@ class MainWindow(QMainWindow):
         self.graph.X[id] = []
         self.graph.Y[id] = []
         self.graph.labels[id] = []
+        self.graph.colors[id] = []
+        
         self.graph.plotAllData2()
     
     # Validate Equations on Input Field

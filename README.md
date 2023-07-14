@@ -20,7 +20,6 @@
 
 - Plot an arbitrary user-entered function.
 - Zoom in and out of the plot.
-- Pan the plot.
 - Save the plot as an image.
 - Change the color of the plot.
 - input validation and error handling.

@@ -1,5 +1,6 @@
 # pylint: disable=C0103,W0105,E0602
 import warnings
+warnings.filterwarnings("ignore")
 
 import numpy as np
 import scipy.special
