@@ -35,6 +35,7 @@ class MainWindow(QMainWindow):
 
         ### Setting title
         self.setWindowTitle("Function Plotter")
+        self.plotsNumber = 0
 
         ### Setting Icon
         self.setWindowIcon(QIcon("./src/assets/icons/function.png"))
@@ -155,15 +156,12 @@ class MainWindow(QMainWindow):
         leftWidget = QWidget()
         leftWidget.setLayout(leftLayout)
         
-        equationsLayout = QVBoxLayout()
-        equationsWidget = QWidget()
+        self.equationsLayout = QVBoxLayout()
+        self.equationsWidget = QFrame()
+        self.equationsWidget.hide()
         
-        # equationTitle = QLabel("f(x)")
-        # equationTitle.setStyleSheet(f"""color:{COLOR2}; font-family: "arial"; font-size: 40px""")
-        # equationTitle.setAlignment(Qt.AlignCenter)        
-
-        equationsWidget.setLayout(equationsLayout)
-        leftLayout.addWidget(equationsWidget)
+        self.equationsWidget.setLayout(self.equationsLayout)
+        leftLayout.addWidget(self.equationsWidget)
         leftLayout.addWidget(QHLine())    
 
         self.addInput(leftLayout)
@@ -179,7 +177,7 @@ class MainWindow(QMainWindow):
         self.addFieldBtn.setEnabled(False)
         self.addFieldBtn.setCursor(QCursor(Qt.PointingHandCursor))
 
-        self.addFieldBtn.clicked.connect(lambda: self.addFunctionToGraph(equationsLayout))
+        self.addFieldBtn.clicked.connect(lambda: self.addFunctionToGraph(self.equationsLayout))
         leftLayout.addWidget(self.addFieldBtn)
         leftLayout.addStretch()
         
@@ -197,7 +195,9 @@ class MainWindow(QMainWindow):
     def _createStatusBar(self):
         self.statusbar = self.statusBar()
         self.statusbar.setStyleSheet(f"""font-size:15px;
-                                 padding: 4px;""")
+                                 padding: 4px;
+                                 color:#fff;
+                                 background: {COLOR1};""")
         self.statusbar.showMessage("Ready", 3000)
 
         # Adding a permanent message
@@ -264,9 +264,12 @@ class MainWindow(QMainWindow):
 
     # Add Function to Graph
     def addFunctionToGraph(self, parent:QVBoxLayout):
+        self.plotsNumber += 1
+        self.equationsWidget.show()
+        
         if self.validateInput(self.inputField.text(), self.minField.text(), self.maxField.text()) == False:
             return
-
+        
         self.addFunctionText(parent, self.inputField.text(), self.minField.text(), self.maxField.text(), len(self.graph.X))
         
         x, y = functionTranslator(self.inputField.text(), float(self.minField.text()), float(self.maxField.text()), STEP)
@@ -294,7 +297,7 @@ class MainWindow(QMainWindow):
         
         # Delete Icon        
         deleteIcon = QLabel()
-        deleteIcon.setPixmap(QPixmap("./src/assets/icons/delete.png").scaled(25,25))
+        deleteIcon.setPixmap(QPixmap("./src/assets/icons/delete.png").scaled(20,20))
         deleteIcon.setCursor(QCursor(Qt.PointingHandCursor))
         deleteIcon.mousePressEvent = lambda event: self.removeFunction(widget=functionTextWidget, items=children, id=id)
         
@@ -316,7 +319,7 @@ class MainWindow(QMainWindow):
         pass
     
     # Remove Function
-    def removeFunction(self,widget:QLayout, items:list(), id:int):
+    def removeFunction(self, widget:QLayout, items:list(), id:int):
         for item in items:
             widget.removeWidget(item)
             item.deleteLater()
@@ -329,6 +332,10 @@ class MainWindow(QMainWindow):
         self.graph.colors[id] = ""
         
         self.graph.plotAllData2()
+        self.plotsNumber -= 1
+        
+        if self.plotsNumber == 0:
+            self.equationsWidget.hide()
     
     # Validate Equations on Input Field
     def validateInput(self, text, min, max, errors=True):
