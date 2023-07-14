@@ -11,6 +11,8 @@ import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
+import matplotlib.colors as mcolors
+mplColorsList = list(mcolors.CSS4_COLORS)
 
 from .utilities import *
 
@@ -38,7 +40,10 @@ class MplCanvas(FigureCanvasQTAgg):
         
         i = 0
         for x, y in zip(self.X, self.Y):
-            self.axes.plot(x, y, color=self.colors[i], label=self.labels[i])
+            if self.colors[i] == "":
+                self.axes.plot(x, y, color='w', label=self.labels[i])
+            else:
+                self.axes.plot(x, y, color=self.colors[i], label=self.labels[i])
             i += 1
                         
         self.draw()
@@ -49,11 +54,14 @@ class MplCanvas(FigureCanvasQTAgg):
         self.X.append(x)
         self.Y.append(y)
         self.labels.append(label)
-        self.colors.append(color)
+        self.colors.append(mplColorsList[len(self.X)-1])
         
         i = 0
         for x, y in zip(self.X, self.Y):
-            self.axes.plot(x, y, color=self.colors[i], label=self.labels[i])
+            if self.colors[i] == "":
+                self.axes.plot(x, y, color='w', label=self.labels[i])
+            else:
+                self.axes.plot(x, y, color=self.colors[i], label=self.labels[i])
             i += 1
             
         self.draw()

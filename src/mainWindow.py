@@ -289,7 +289,7 @@ class MainWindow(QMainWindow):
         inputLabel.mousePressEvent = lambda event: self.drawFunction(text, float(min), float(max), errors=False)
         
         # Color of line
-        colorInput = pg.ColorButton(color='red')
+        colorInput = pg.ColorButton(color=mplColorsList[id])
         colorInput.sigColorChanging.connect(lambda: self.changeLineColor(id, colorInput.color().name()))
         
         # Delete Icon        
@@ -325,8 +325,8 @@ class MainWindow(QMainWindow):
             
         self.graph.X[id] = []
         self.graph.Y[id] = []
-        self.graph.labels[id] = []
-        self.graph.colors[id] = []
+        self.graph.labels[id] = ""
+        self.graph.colors[id] = ""
         
         self.graph.plotAllData2()
     
@@ -388,10 +388,11 @@ class MainWindow(QMainWindow):
 
     # Reset Inputs
     def resetInputs(self):
-        self.inputField.setText("")
+#        self.inputField.setText("")
         # self.minField.setText("")
         # self.maxField.setText("")
-                
+        pass
+                    
     # Exit the application
     def exit(self):
         exitDialog = QMessageBox.critical(self,

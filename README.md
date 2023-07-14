@@ -1,6 +1,6 @@
 # Function Plotter
 
-![Project Image](project-image-url)
+![Project Image](./docs/image7.png)
 
 > Function plotter program that plots an arbitrary user-entered function.
 
@@ -10,6 +10,7 @@
 
 - [Description](#description)
 - [How To Use](#how-to-use)
+- [Preview](#preview)
 - [References](#references)
 
 ---
@@ -45,10 +46,24 @@ $ pip install -r requirements.txt
 ```
 
 #### Run Locally
-
+Run python3 main.py in the terminal.
 ```Terminal
-$ python3 __init__.py 
+$ python3 main.py
 ```
+
+[Back To The Top](#function-plotter)
+
+---
+
+## Preview
+
+![Project Image](./docs/image1.png)
+![Project Image](./docs/image2.png)
+![Project Image](./docs/image3.png)
+![Project Image](./docs/image4.png)
+![Project Image](./docs/image5.png)
+![Project Image](./docs/image6.png)
+![Project Image](./docs/image7.png)
 
 [Back To The Top](#function-plotter)
 
