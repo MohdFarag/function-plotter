@@ -3,7 +3,6 @@ import warnings
 warnings.filterwarnings("ignore")
 
 import numpy as np
-import scipy.special
 from math import *
 
 import random
@@ -27,9 +26,12 @@ COLOR5 = "#ffffff"
 
 """Functions"""
 
+def factorial(n):
+    return prod(range(1,n+1))
+
 def eval_expression(input_string,x):
-     # Step 1
-     allowed_names = {
+    # Step 1
+    allowed_names = {
         "x": x,
         "sin": np.sin,
         "cos": np.cos,
@@ -45,16 +47,17 @@ def eval_expression(input_string,x):
         "arccosh": np.arcsinh,
         "arctanh": np.arctanh,
         "log": np.log,
-        "fact": scipy.special.factorial,
+        "fact": factorial,
     }
-     # Step 2
-     code = compile(input_string, "<string>", "eval")
-     # Step 3
-     for name in code.co_names:
-         if name not in allowed_names:
-             # Step 4
-             raise NameError(f"Use of {name} not allowed")
-     return eval(code, {"__builtins__": {}}, allowed_names)
+    
+    # Step 2
+    code = compile(input_string, "<string>", "eval")
+    # Step 3
+    for name in code.co_names:
+        if name not in allowed_names:
+            # Step 4
+            raise NameError(f"Use of {name} not allowed")
+    return eval(code, {"__builtins__": {}}, allowed_names)
 
 def functionTranslator(equation: str, min:float, max:float, step:float) -> np.ndarray:   
     # The following operators must be supported: + - / * ^.
@@ -78,7 +81,8 @@ def py2tex(expr):
     txt = LatexVisitor().visit(pt.body[0].value)
     return txt
 
-def mathTex_to_QPixmap(mathTex, range, fs=16):
+def mathTex_to_QPixmap(mathTex, range, fs=16, fontName="cursive"):
+    
     # Python to Latex
     mathTex = py2tex(mathTex)
     
@@ -96,9 +100,9 @@ def mathTex_to_QPixmap(mathTex, range, fs=16):
     ax.patch.set_facecolor('none')
     
     if range:
-        t = ax.text(0, 0, 'f(x) = '+'$%s$' %mathTex + f' [{range[0]} , {range[1]}]', ha='left', va='bottom', fontsize=fs)
+        t = ax.text(0, 0, 'f(x) = '+'$%s$' %mathTex + f' [{range[0]} , {range[1]}]', ha='left', va='bottom', fontsize=fs, fontname=fontName, color=COLOR4)
     else:
-        t = ax.text(0, 0, '$%s$' %mathTex, ha='left', va='bottom', fontsize=fs)
+        t = ax.text(0, 0, '$%s$' %mathTex, ha='left', va='bottom', fontsize=fs, fontname=fontName, color=COLOR4)
 
     #---- fit figure size to text artist ----
 

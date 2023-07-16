@@ -16,7 +16,6 @@ mplColorsList = list(mcolors.CSS4_COLORS)
 
 from .utilities import *
 
-
 class MplCanvas(FigureCanvasQTAgg):
     
     def __init__(self, parent=None, title="Plotter"):

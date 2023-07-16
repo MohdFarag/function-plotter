@@ -3,6 +3,7 @@
 import sys
 from PySide2.QtWidgets import QApplication
 from .mainWindow import MainWindow
+from qdarktheme import load_stylesheet
 
 # Importing Logging
 from .log import appLogger
@@ -12,8 +13,8 @@ def main():
 
     # Create the application
     app = QApplication(sys.argv)
-    app.setStyle('Fusion')
-
+    app.setStyleSheet(load_stylesheet(theme='dark'))
+    
     # Create and show the main window
     window = MainWindow()
     window.show()
