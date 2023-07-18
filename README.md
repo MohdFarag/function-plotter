@@ -1,6 +1,6 @@
 # Function Plotter
 
-![Project Image](./docs/image7.png)
+![Project Image](./docs/image3.png)
 
 > Function plotter program that plots an arbitrary user-entered function.
 
@@ -58,12 +58,12 @@ $ python3 main.py
 ## Preview
 
 ![Project Image](./docs/image1.png)
+![Project Image](./docs/image7.png)
 ![Project Image](./docs/image2.png)
 ![Project Image](./docs/image3.png)
 ![Project Image](./docs/image4.png)
-![Project Image](./docs/image5.png)
 ![Project Image](./docs/image6.png)
-![Project Image](./docs/image7.png)
+![Project Image](./docs/image5.png)
 
 [Back To The Top](#function-plotter)
 

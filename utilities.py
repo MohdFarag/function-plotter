@@ -100,9 +100,9 @@ def mathTex_to_QPixmap(mathTex, range, fs=16, fontName="cursive"):
     ax.patch.set_facecolor('none')
     
     if range:
-        t = ax.text(0, 0, 'f(x) = '+'$%s$' %mathTex + f' [{range[0]} , {range[1]}]', ha='left', va='bottom', fontsize=fs, fontname=fontName, color=COLOR4)
+        t = ax.text(0, 0, 'f(x) = '+'$%s$' %mathTex + f' [{range[0]} , {range[1]}]', ha='left', va='bottom', fontsize=fs, fontname=fontName, color=COLOR2)
     else:
-        t = ax.text(0, 0, '$%s$' %mathTex, ha='left', va='bottom', fontsize=fs, fontname=fontName, color=COLOR4)
+        t = ax.text(0, 0, '$%s$' %mathTex, ha='left', va='bottom', fontsize=fs, fontname=fontName, color=COLOR2)
 
     #---- fit figure size to text artist ----
 

@@ -23,21 +23,22 @@ STEP = 0.001
 # Window class
 class MainWindow(QMainWindow):
     """Main Window"""
-    def __init__(self, *args, **kwargs):
+    def __init__(self, theme='dark', *args, **kwargs):
         """Initializer."""
         super(MainWindow, self).__init__(*args, **kwargs)
         
         ### Adding Fonts
-        QFontDatabase.addApplicationFont("./src/assets/fonts/AccanthisADFStd-Regular.otf")
-        QFontDatabase.addApplicationFont("./src/assets/fonts/OpenSans.ttf")
-        QFontDatabase.addApplicationFont("./src/assets/fonts/Enagol-Math-Medium.ttf")
+        QFontDatabase.addApplicationFont("./assets/fonts/AccanthisADFStd-Regular.otf")
+        QFontDatabase.addApplicationFont("./assets/fonts/OpenSans.ttf")
+        QFontDatabase.addApplicationFont("./assets/fonts/Enagol-Math-Medium.ttf")
 
         ### Setting title
         self.setWindowTitle("Function Plotter")
         self.plots_number = 0
+        self.theme = theme
 
         ### Setting Icon
-        self.setWindowIcon(QIcon("./src/assets/icons/function.png"))
+        self.setWindowIcon(QIcon("./assets/icons/function.png"))
         self.setMinimumSize(1000,600)
 
         ### UI contents
@@ -163,7 +164,7 @@ class MainWindow(QMainWindow):
 
         self.add_input_fields(left_layout)
         self.add_equation_button = QPushButton()
-        self.add_equation_button.setIcon(QIcon("./src/assets/icons/add.png"))
+        self.add_equation_button.setIcon(QIcon("./assets/icons/add.png"))
         self.add_equation_button.setStyleSheet("""font-size:24px;
                                    border-radius: 6px;
                                    padding: 5px 15px; 
@@ -205,7 +206,7 @@ class MainWindow(QMainWindow):
         inputs_widget = QHBoxLayout()
         
         self.status_image = QLabel()
-        self.status_image.setPixmap(QPixmap("./src/assets/icons/warn.png").scaled(35,35))
+        self.status_image.setPixmap(QPixmap("./assets/icons/warn.png").scaled(35,35))
 
         fx_label =QLabel("f(x) = ")
         fx_label.setFont(QFont("arial",16))
@@ -272,11 +273,16 @@ class MainWindow(QMainWindow):
         children = []
 
         # input label
-        label = mathTex_to_QPixmap(text,[min , max])
         input_label = QLabel()
+        label = mathTex_to_QPixmap(text,[min , max])
         input_label.setPixmap(label)
         input_label.setCursor(QCursor(Qt.PointingHandCursor))
-        input_label.setStyleSheet(f"""color:#393E46; font-family: "arial"; font-size: 20px""")
+        
+        if self.theme == 'dark':
+            input_label.setStyleSheet(f"""color:#393E46; font-family: "arial"; font-size: 20px""")
+        else:
+            input_label.setStyleSheet(f"""color:#2d2d2d; font-family: "arial"; font-size: 20px""")
+            
         input_label.setWordWrap(True)
         input_label.mousePressEvent = lambda event: self.draw_equation(text, float(min), float(max), errors=False)
         
@@ -286,7 +292,7 @@ class MainWindow(QMainWindow):
         
         # Delete Icon        
         delete_image = QLabel()
-        delete_image.setPixmap(QPixmap("./src/assets/icons/delete.png").scaled(20,20))
+        delete_image.setPixmap(QPixmap("./assets/icons/delete.png").scaled(20,20))
         delete_image.setCursor(QCursor(Qt.PointingHandCursor))
         delete_image.mousePressEvent = lambda event: self.remove_equation(widget=equation_text_widget, items=children, id=id)
         
@@ -361,7 +367,7 @@ class MainWindow(QMainWindow):
         if errors:
             self.add_equation_button.setEnabled(True)
             self.status_bar.showMessage("Ready")
-            self.status_image.setPixmap(QPixmap("./src/assets/icons/ok.png").scaled(35,35))
+            self.status_image.setPixmap(QPixmap("./assets/icons/ok.png").scaled(35,35))
             
         return True
 
@@ -370,9 +376,9 @@ class MainWindow(QMainWindow):
         self.graph.plot_all_data2()
         self.add_equation_button.setEnabled(False)
         if warning:
-            self.status_image.setPixmap(QPixmap("./src/assets/icons/warn.png").scaled(35,35))
+            self.status_image.setPixmap(QPixmap("./assets/icons/warn.png").scaled(35,35))
         else:
-            self.status_image.setPixmap(QPixmap("./src/assets/icons/wrong.png").scaled(35,35))
+            self.status_image.setPixmap(QPixmap("./assets/icons/wrong.png").scaled(35,35))
     
     # Draw Function
     def draw_equation(self, text, xMin, xMax, errors=True):

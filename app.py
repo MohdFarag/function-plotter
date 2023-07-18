@@ -13,10 +13,11 @@ def main():
 
     # Create the application
     app = QtWidgets.QApplication(sys.argv)
-    app.setStyleSheet(load_stylesheet(theme='auto'))
+    theme = "light"
+    app.setStyleSheet(load_stylesheet(theme=theme))
     
     # Create and show the main window
-    window = MainWindow()
+    window = MainWindow(theme=theme)
     window.show()
 
     appLogger.debug("Application started successfully.")
