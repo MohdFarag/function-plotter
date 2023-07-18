@@ -1,6 +1,6 @@
 # Function Plotter
 
-![Project Image](./docs/image3.png)
+![Project Image](./docs/image3-copy.png)
 
 > Function plotter program that plots an arbitrary user-entered function.
 
