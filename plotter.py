@@ -1,20 +1,13 @@
-# importing Qt widgets
-from PySide2.QtWidgets import *
-from PySide2.QtGui import *
-from PySide2.QtCore import *
-
 # importing numpy
 import numpy as np
 
 # matplotlib
-import matplotlib
-import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 import matplotlib.colors as mcolors
 mplColorsList = list(mcolors.CSS4_COLORS)
 
-from .utilities import *
+from utilities import *
 
 class MplCanvas(FigureCanvasQTAgg):
     
@@ -22,23 +15,23 @@ class MplCanvas(FigureCanvasQTAgg):
         # Variables
         self.title = title
         self.lines = []
-        self.X = []        
-        self.Y = []
+        self.x_arrays = []        
+        self.y_arrays = []
         self.labels = []
         self.colors = []
         
-        self.fig = Figure(facecolor=f"{COLOR1}")
+        self.fig = Figure(facecolor="#222831")
         self.axes = self.fig.add_subplot(111)
         
-        self.clearPlot()
+        self.clear_plot()
         
         super(MplCanvas, self).__init__(self.fig)
 
-    def plotAllData2(self):
-        self.clearPlot()
+    def plot_all_data2(self):
+        self.clear_plot()
         
         i = 0
-        for x, y in zip(self.X, self.Y):
+        for x, y in zip(self.x_arrays, self.y_arrays):
             if self.colors[i] == "":
                 self.axes.plot(x, y, color='w', label=self.labels[i])
             else:
@@ -47,16 +40,16 @@ class MplCanvas(FigureCanvasQTAgg):
                         
         self.draw()
         
-    def plotAllData(self, x, y, label, color="red"):
-        self.clearPlot()
+    def plot_all_data(self, x, y, label, color="red"):
+        self.clear_plot()
         
-        self.X.append(x)
-        self.Y.append(y)
+        self.x_arrays.append(x)
+        self.y_arrays.append(y)
         self.labels.append(label)
-        self.colors.append(mplColorsList[len(self.X)-1])
+        self.colors.append(mplColorsList[len(self.x_arrays)-1])
         
         i = 0
-        for x, y in zip(self.X, self.Y):
+        for x, y in zip(self.x_arrays, self.y_arrays):
             if self.colors[i] == "":
                 self.axes.plot(x, y, color='w', label=self.labels[i])
             else:
@@ -65,24 +58,24 @@ class MplCanvas(FigureCanvasQTAgg):
             
         self.draw()
        
-    def plotOneData(self, x, y, label):
-        self.clearPlot()
+    def plot_data(self, x, y, label):
+        self.clear_plot()
         self.axes.plot(x, y, label=label)
-        self.setxLimits(x)
+        self.set_x_limits(x)
         self.draw()
 
-    def setxLimits(self, x):
-        minX = np.min(x)
-        maxX = np.max(x)
-        if minX >= 0: minX*0.9
-        else: minX*1.1
+    def set_x_limits(self, x):
+        min_x = np.min(x)
+        max_x = np.max(x)
+        if min_x >= 0: min_x*0.9
+        else: min_x*1.1
         
-        if maxX >= 0: maxX*1.1 
-        else: maxX*0.9
+        if max_x >= 0: max_x*1.1 
+        else: max_x*0.9
         
-        self.axes.set_xlim([minX, maxX])
+        self.axes.set_xlim([min_x, max_x])
        
-    def clearPlot(self):
+    def clear_plot(self):
         self.axes.clear()
         self.axes.set_title(self.title, fontweight ="bold", color=f"{COLOR4}")
         

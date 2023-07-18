@@ -1,6 +1,11 @@
+"""Latex visitor class to translate mathematical expressions to Latex""
+"""
+
 import ast
 
+# Latex visitors class
 class LatexVisitor(ast.NodeVisitor):
+    """Latex visitors class"""
 
     def prec(self, n):
         return getattr(self, 'prec_'+n.__class__.__name__, getattr(self, 'generic_prec'))(n)

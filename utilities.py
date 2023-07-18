@@ -7,7 +7,7 @@ from math import *
 
 import random
 import ast
-from .latex import LatexVisitor
+from latex import LatexVisitor
 
 # Importing Matplotlib
 import matplotlib.pyplot as mpl
@@ -59,7 +59,7 @@ def eval_expression(input_string,x):
             raise NameError(f"Use of {name} not allowed")
     return eval(code, {"__builtins__": {}}, allowed_names)
 
-def functionTranslator(equation: str, min:float, max:float, step:float) -> np.ndarray:   
+def function_translator(equation: str, min:float, max:float, step:float) -> np.ndarray:   
     # The following operators must be supported: + - / * ^.
     equation = equation.replace("^","**") 
 
